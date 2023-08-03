@@ -239,8 +239,7 @@ def train_model(config):
 
             global_step += 1
 
-        run_validation(model, val_dataloader, tokenizer_tgt, config['seq_len'], device, lambda msg: batch_iterator.write(msg), global_step, writer)
-
+        
         # Save the model at the end of every epoch
         model_filename  = get_weights_file_path(config, f'{epoch:02d}')
         torch.save({
@@ -249,6 +248,10 @@ def train_model(config):
             'optimizer_state_dict': optimizer.state_dict(),
             'global_step': global_step
         }, model_filename)
+        run_validation(model, val_dataloader,tokenizer_src, tokenizer_tgt, config['seq_len'], device, lambda msg: batch_iterator.write(msg), global_step, writer)
+
+
+
 
 
 if __name__ ==   '__main__':
