@@ -156,7 +156,7 @@ def get_ds(config):
 
     for item in ds_raw:
         src_ids = tokenizer_src.encode(item['translation'][config['lang_src']]).ids
-        tgt_ids = tokenizer_tgt.encode(item['translation'][config['lang_src']]).ids
+        tgt_ids = tokenizer_tgt.encode(item['translation'][config['lang_tgt']]).ids
         max_len_src = max(max_len_src, len(src_ids))
         max_len_tgt = max(max_len_tgt, len(tgt_ids))
 
@@ -177,7 +177,7 @@ def get_model(config, vocab_src_Len, vocab_tgt_len):
 def train_model(config):
     # Define the device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f'using device{device}')
+    print(f'using device: {device}')
 
     Path(config['model_folder']).mkdir(parents = True, exist_ok=True)
 
