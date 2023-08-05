@@ -13,7 +13,7 @@ from tokenizers.pre_tokenizers import Whitespace
 from pathlib import Path
 
 from model import build_transformer
-from config import get_config, get_weights_file_path, get_weights_file_path_out
+from config import get_config, get_weights_file_path
 
 from torch.utils.tensorboard import SummaryWriter
 
