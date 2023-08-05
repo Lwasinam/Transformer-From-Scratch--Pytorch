@@ -241,10 +241,7 @@ def train_model(config):
 
         
         # Save the model at the end of every epoch
-        if config['preload']:
-            model_filename  = get_weights_file_path_out(config, f'{epoch:02d}')
-        else:
-            model_filename = get_weights_file_path(config, f'{epoch:02d}')    
+        model_filename = get_weights_file_path(config, f'{epoch:02d}')    
         torch.save({
             'epoch': epoch,
             "model_state_dict": model.state_dict(),
