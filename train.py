@@ -163,6 +163,7 @@ def get_ds(config):
 
     print(f"Max lenght of source sentence: {max_len_src}")
     print(f"Max lenght of target sentence: {max_len_tgt}")
+    print(train_ds_rw)
 
     train_dataloader = DataLoader(train_ds, batch_size=config['batch_size'], shuffle= True)
     val_dataloader = DataLoader(val_ds, batch_size=1, shuffle=True)
