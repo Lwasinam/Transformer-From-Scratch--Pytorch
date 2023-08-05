@@ -146,7 +146,7 @@ def get_ds(config):
     train_ds_size  = int(0.9 * len(ds_raw))
     val_ds_size = len(ds_raw) - train_ds_size
     train_ds_raw, val_ds_raw = random_split(ds_raw, [train_ds_size, val_ds_size])
-    print(train_ds_raw)
+    print(train_ds_raw[:8])
 
 
     train_ds = BilingualDataset(train_ds_raw, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
@@ -163,7 +163,7 @@ def get_ds(config):
 
     print(f"Max lenght of source sentence: {max_len_src}")
     print(f"Max lenght of target sentence: {max_len_tgt}")
-    print(train_ds_rw)
+    print(train_ds_raw)
 
     train_dataloader = DataLoader(train_ds, batch_size=config['batch_size'], shuffle= True)
     val_dataloader = DataLoader(val_ds, batch_size=1, shuffle=True)
