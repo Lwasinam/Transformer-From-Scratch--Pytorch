@@ -3,6 +3,8 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader, random_split 
 
 from dataset import BilingualDataset, causal_mask
+import torch.optim.lr_scheduler as lr_scheduler
+
 
 from datasets import load_dataset
 from tokenizers import Tokenizer
@@ -19,7 +21,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from tqdm import tqdm
 import warnings
-import torchmetrics
+import torchtext
 
 
 def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_len, device):
@@ -93,19 +95,19 @@ def run_validation(model, validation_ds, tokenizer_src, tokenizer_tgt, max_len, 
     if writer:
         # Evaluate the character error rate
         # Compute the char error rate 
-        metric = torchmetrics.CharErrorRate()
+        metric = torchtext.CharErrorRate()
         cer = metric(predicted, expected)
         writer.add_scalar('validation cer', cer, global_step)
         writer.flush()
 
         # Compute the word error rate
-        metric = torchmetrics.WordErrorRate()
+        metric = torchtext.WordErrorRate()
         wer = metric(predicted, expected)
         writer.add_scalar('validation wer', wer, global_step)
         writer.flush()
 
         # Compute the BLEU metric
-        metric = torchmetrics.BLEUScore()
+        metric = torchtext.BLEUScore()
         bleu = metric(predicted, expected)
         writer.add_scalar('validation BLEU', bleu, global_step)
         writer.flush()        
@@ -135,7 +137,7 @@ def get_or_build_tokenizer(config, ds, lang):
 
 
 def get_ds(config):
-    ds_raw = load_dataset('opus100', f"{config['lang_src']}-{config['lang_tgt']}", split = 'train')
+    ds_raw = load_dataset('opus_books', f"{config['lang_src']}-{config['lang_tgt']}", split = 'train')
 
 
     #Build tokenizer
@@ -146,7 +148,7 @@ def get_ds(config):
     train_ds_size  = int(0.9 * len(ds_raw))
     val_ds_size = len(ds_raw) - train_ds_size
     train_ds_raw, val_ds_raw = random_split(ds_raw, [train_ds_size, val_ds_size])
-    print(train_ds_raw[:8])
+    print(train_ds_raw[:1])
 
 
     train_ds = BilingualDataset(train_ds_raw, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
@@ -189,8 +191,8 @@ def train_model(config):
 
     #TensorBoard
     writer = SummaryWriter(config['experiment_name'])
-    optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'], eps=1e-9)
-
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01, eps=1e-9)
+    scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     initial_epoch = 0
     global_step = 0
@@ -240,6 +242,7 @@ def train_model(config):
            
 
             global_step += 1
+        scheduler.step()
 
         
         # Save the model at the end of every epoch
