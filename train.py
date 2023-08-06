@@ -21,7 +21,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from tqdm import tqdm
 import warnings
-import torchtext
+import torchmetrics.text
 
 
 def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_len, device):
@@ -95,19 +95,19 @@ def run_validation(model, validation_ds, tokenizer_src, tokenizer_tgt, max_len, 
     if writer:
         # Evaluate the character error rate
         # Compute the char error rate 
-        metric = torchtext.CharErrorRate()
-        cer = metric(predicted, expected)
-        writer.add_scalar('validation cer', cer, global_step)
-        writer.flush()
+        #metric = torchtext.CharErrorRate()
+        #cer = metric(predicted, expected)
+        #writer.add_scalar('validation cer', cer, global_step)
+        #writer.flush()
 
         # Compute the word error rate
-        metric = torchtext.WordErrorRate()
+        metric = torchmetrics.text.WordErrorRate()
         wer = metric(predicted, expected)
         writer.add_scalar('validation wer', wer, global_step)
         writer.flush()
 
         # Compute the BLEU metric
-        metric = torchtext.BLEUScore()
+        metric = torchmetrics.text.BLEUScore()
         bleu = metric(predicted, expected)
         writer.add_scalar('validation BLEU', bleu, global_step)
         writer.flush()        
