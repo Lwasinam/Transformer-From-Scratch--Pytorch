@@ -191,7 +191,7 @@ def train_model(config):
 
     #TensorBoard
     writer = SummaryWriter(config['experiment_name'])
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01, eps=1e-9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=10**-4, eps=1e-9)
     scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     initial_epoch = 0
