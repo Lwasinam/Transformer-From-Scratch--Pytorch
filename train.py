@@ -244,7 +244,7 @@ def train_model(config):
             loss.backward()
 
             #update the weights
-            optimizer.step()
+            #optimizer.step()
             
             optimizer.zero_grad(set_to_none=True)
             xm.optimizer_step(optimizer)
