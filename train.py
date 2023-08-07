@@ -211,6 +211,10 @@ def train_model(config):
         initial_epoch = state['epoch']+ 1
         optimizer.load_state_dict(state['optimizer_state_dict'])
         global_step = state['global_step']
+        # Move model checkpoint to TPU
+        model = state['model']  # Modify to match your checkpoint structure
+        model = model.to(device)
+        del state
 
 
     mp_device_loader = pl.MpDeviceLoader(train_dataloader, device)
