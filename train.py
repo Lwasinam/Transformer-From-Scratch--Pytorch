@@ -22,6 +22,9 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import warnings
 import torchmetrics.text
+import torch_xla.core.xla_model as xm
+import torch_xla.distributed.parallel_loader as pl
+import torch_xla.distributed.xla_multiprocessing as xmp
 
 
 
@@ -210,12 +213,12 @@ def train_model(config):
         global_step = state['global_step']
 
 
-
+    mp_device_loader = pl.MpDeviceLoader(train_dataloader, device)
     loss_fn = nn.CrossEntropyLoss(ignore_index=tokenizer_src.token_to_id('[PAD]'), label_smoothing=0.1).to(device)
     for epoch in range(initial_epoch, config['num_epochs']):
-        model.train()
+        model.train().to(device)
         batch_iterator = tqdm(train_dataloader, desc = f'Processing epoch{epoch:02d}') 
-        for batch in batch_iterator:
+        for batch in mp_device_loader:
             
             encoder_input  = batch['encoder_input'].to(device) #(B, seq_len)
             decoder_input = batch['decoder_input'].to(device) #(B seq_len)
@@ -242,7 +245,9 @@ def train_model(config):
 
             #update the weights
             optimizer.step()
+            
             optimizer.zero_grad(set_to_none=True)
+            xm.optimizer_step(optimizer)
 
            
 
@@ -267,7 +272,7 @@ def train_model(config):
 if __name__ ==   '__main__':
     warnings.filterwarnings('ignore')
     config = get_config()
-    train_model(config)      
+    xmp.spawn(train_model(config), args=())      
 
 
         
