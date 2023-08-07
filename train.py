@@ -266,13 +266,19 @@ def train_model(config):
         run_validation(model, val_dataloader,tokenizer_src, tokenizer_tgt, config['seq_len'], device, lambda msg: batch_iterator.write(msg), global_step, writer)
 
 
+def _mp_fn(index):
+  torch.set_default_tensor_type('torch.FloatTensor')
+  config = get_config()
+  train_model(config)
+  
+
 
 
 
 if __name__ ==   '__main__':
     warnings.filterwarnings('ignore')
-    config = get_config()
-    xmp.spawn(train_model(config), args=())      
+    
+    xmp.spawn(_mp_fn, args=())      
 
 
         
