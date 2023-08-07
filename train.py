@@ -208,12 +208,13 @@ def train_model(config):
         print(f'Preloading model{model_filename}')
         state = torch.load(model_filename, map_location=torch.device('cpu'))
         model.load_state_dict(state['model_state_dict'])
+        model = model.to(device)
         initial_epoch = state['epoch']+ 1
         optimizer.load_state_dict(state['optimizer_state_dict'])
         global_step = state['global_step']
         # Move model checkpoint to TPU
-        model = state['model']  # Modify to match your checkpoint structure
-        model = model.to(device)
+        #model = state['model']  # Modify to match your checkpoint structure
+       
         del state
 
 
