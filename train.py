@@ -24,6 +24,9 @@ import warnings
 import torchmetrics.text
 
 
+
+
+
 def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_len, device):
     sos_idx = tokenizer_tgt.token_to_id('[SOS]')
     eos_idx = tokenizer_tgt.token_to_id('[EOS]')
@@ -180,7 +183,8 @@ def get_model(config, vocab_src_Len, vocab_tgt_len):
 
 def train_model(config):
     # Define the device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = config['device']
+    #torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f'using device: {device}')
 
     Path(config['model_folder']).mkdir(parents = True, exist_ok=True)
