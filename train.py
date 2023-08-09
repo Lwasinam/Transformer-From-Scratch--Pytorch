@@ -30,6 +30,7 @@ import torch_xla.distributed.xla_multiprocessing as xmp
 
 
 
+
 def greedy_decode(model, source, source_mask, tokenizer_src, tokenizer_tgt, max_len, device):
     sos_idx = tokenizer_tgt.token_to_id('[SOS]')
     eos_idx = tokenizer_tgt.token_to_id('[EOS]')
@@ -195,10 +196,11 @@ def train_model(config):
     train_dataloader, val_dataloader, tokenizer_src, tokenizer_tgt  = get_ds(config)
 
     model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
+    lr = 10**-4 * xm.xrt_world_size()
 
     #TensorBoard
     writer = SummaryWriter(config['experiment_name'])
-    optimizer = torch.optim.Adam(model.parameters(), lr=10**-4, eps=1e-9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, eps=1e-9)
     scheduler = lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     initial_epoch = 0
@@ -221,7 +223,7 @@ def train_model(config):
     mp_device_loader = pl.MpDeviceLoader(train_dataloader, device)
     loss_fn = nn.CrossEntropyLoss(ignore_index=tokenizer_src.token_to_id('[PAD]'), label_smoothing=0.1).to(device)
     for epoch in range(initial_epoch, config['num_epochs']):
-        model.train().to(device)
+        model.train()
         batch_iterator = tqdm(train_dataloader, desc = f'Processing epoch{epoch:02d}') 
         for batch in mp_device_loader:
             
