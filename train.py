@@ -224,7 +224,7 @@ def train_model(config):
     loss_fn = nn.CrossEntropyLoss(ignore_index=tokenizer_src.token_to_id('[PAD]'), label_smoothing=0.1).to(device)
     for epoch in range(initial_epoch, config['num_epochs']):
         model.train()
-        batch_iterator = tqdm(mp_device_loader, desc = f'Processing epoch{epoch:02d}') 
+        batch_iterator = tqdm(mp_device_loader,total=len(train_dataloader), desc = f'Processing epoch{epoch:02d}') 
         for batch in mp_device_loader:
             
             encoder_input  = batch['encoder_input'].to(device) #(B, seq_len)
