@@ -225,7 +225,7 @@ def train_model(config):
     for epoch in range(initial_epoch, config['num_epochs']):
         model.train()
         batch_iterator = tqdm(mp_device_loader,total=len(train_dataloader), desc = f'Processing epoch{epoch:02d}') 
-        for batch in mp_device_loader:
+        for batch in batch_iterator:
             
             encoder_input  = batch['encoder_input'].to(device) #(B, seq_len)
             decoder_input = batch['decoder_input'].to(device) #(B seq_len)
