@@ -22,6 +22,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 import warnings
 import torchmetrics.text
+import torch_xla
 import torch_xla.core.xla_model as xm
 import torch_xla.distributed.parallel_loader as pl
 import torch_xla.distributed.xla_multiprocessing as xmp
@@ -185,7 +186,7 @@ def get_model(config, vocab_src_Len, vocab_tgt_len):
 
 
 
-def train_model(config):
+def train_loop_fn(config):
     # Define the device
     device = config['device']
     #torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -276,7 +277,7 @@ def train_model(config):
 def _mp_fn(index):
   torch.set_default_tensor_type('torch.FloatTensor')
   config = get_config()
-  train_model(config)
+  train_loop_fn(config)
   
 
 
