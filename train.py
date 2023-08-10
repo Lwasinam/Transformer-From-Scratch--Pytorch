@@ -196,6 +196,19 @@ def train_loop_fn(config):
 
     train_dataloader, val_dataloader, tokenizer_src, tokenizer_tgt  = get_ds(config)
 
+    train_sampler = torch.utils.data.distributed.DistributedSampler(
+    train_dataloader,
+    num_replicas=xm.xrt_world_size(),
+    rank=xm.get_ordinal(),
+    shuffle=True)
+
+    train_loader_py = torch.utils.data.DataLoader(
+      train_dataloader,
+      batch_size= config['batch'],
+      sampler=train_sampler,
+      num_workers= 0,
+      drop_last=True)
+
     model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
     lr = 10**-4 * xm.xrt_world_size()
 
@@ -221,12 +234,12 @@ def train_loop_fn(config):
         del state
 
 
-    mp_device_loader = pl.MpDeviceLoader(train_dataloader, device)
+    mp_device_loader = pl.ParallelLoader(train_loader_py, device)
     loss_fn = nn.CrossEntropyLoss(ignore_index=tokenizer_src.token_to_id('[PAD]'), label_smoothing=0.1).to(device)
     for epoch in range(initial_epoch, config['num_epochs']):
         model.train()
         batch_iterator = tqdm(mp_device_loader,total=len(train_dataloader), desc = f'Processing epoch{epoch:02d}') 
-        for batch in batch_iterator:
+        for batch in mp_device_loader:
             
             encoder_input  = batch['encoder_input'].to(device) #(B, seq_len)
             decoder_input = batch['decoder_input'].to(device) #(B seq_len)
