@@ -204,7 +204,7 @@ def train_loop_fn(config):
 
     train_loader_py = torch.utils.data.DataLoader(
       train_dataloader,
-      batch_size= 15,
+      batch_size= 10,
       sampler=train_sampler,
       num_workers= 0,
       drop_last=True)
