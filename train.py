@@ -206,7 +206,7 @@ def train_loop_fn(config):
       train_dataloader,
       batch_size= 10,
       sampler=train_sampler,
-      num_workers= 0,
+      num_workers= None,
       drop_last=True)
 
     model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
